@@ -11,13 +11,9 @@
       --bg-color: #f4f4f0;
       --main-black: #111111;
       --primary: #FFDE59;
-      /* Yellow */
       --secondary: #FF66C4;
-      /* Pink */
       --accent: #00E5FF;
-      /* Cyan */
       --success: #00FF66;
-      /* Green */
       --border-width: 4px;
       --shadow-offset: 8px;
     }
@@ -41,7 +37,6 @@
       margin: 0 auto;
     }
 
-    /* Neo-Brutalist Elements */
     .brutal-card {
       background: white;
       border: var(--border-width) solid var(--main-black);
@@ -81,15 +76,8 @@
       gap: 12px;
     }
 
-    .brutal-btn:hover {
-      background: var(--secondary);
-    }
-
-    .brutal-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
+    .brutal-btn:hover { background: var(--secondary); }
+    .brutal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
     .brutal-btn:active:not(:disabled) {
       transform: translate(4px, 4px);
       box-shadow: 0px 0px 0px var(--main-black);
@@ -131,121 +119,55 @@
       font-weight: bold;
     }
 
-    .stat-box.high {
-      background: var(--success);
-    }
+    .stat-box.high { background: var(--success); }
+    .stat-box.danger { background: var(--secondary); }
 
-    .stat-box.danger {
-      background: var(--secondary);
-    }
+    .stat-value { font-size: 2rem; }
+    .stat-label { font-size: 0.8rem; text-transform: uppercase; }
 
-    .stat-value {
-      font-size: 2rem;
-    }
-
-    .stat-label {
-      font-size: 0.8rem;
-      text-transform: uppercase;
-    }
-
-    #stateDashboard,
-    #scenarioSection,
-    #logSection {
-      display: none;
-    }
+    #stateDashboard, #scenarioSection, #logSection { display: none; }
 
     .scenario-choices {
-      display: flex;
-      gap: 16px;
-      margin-top: 24px;
-      flex-wrap: wrap;
-      align-items: flex-start;
+      display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; align-items: flex-start;
     }
 
     .choice-group {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      flex: 1;
-      min-width: 250px;
+      display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 250px;
     }
 
     .choice-preview {
-      font-size: 0.9rem;
-      font-weight: bold;
-      color: var(--main-black);
-      text-align: center;
-      background: #fff;
-      padding: 4px;
-      border: 2px solid #000;
+      font-size: 0.9rem; font-weight: bold; color: var(--main-black); text-align: center;
+      background: #fff; padding: 4px; border: 2px solid #000;
     }
 
-    /* Square Flipping Spinner */
     .brutal-spinner-square {
-      display: none;
-      width: 20px;
-      height: 20px;
-      background: var(--main-black);
-      border: 2px solid var(--bg-color);
-      box-shadow: 3px 3px 0px var(--main-black);
+      display: none; width: 20px; height: 20px; background: var(--main-black);
+      border: 2px solid var(--bg-color); box-shadow: 3px 3px 0px var(--main-black);
       animation: brutal-flip 0.8s infinite alternate ease-in-out;
     }
 
     @keyframes brutal-flip {
-      0% {
-        transform: perspective(400px) rotateY(0deg);
-        background: var(--accent);
-      }
-
-      50% {
-        background: var(--primary);
-      }
-
-      100% {
-        transform: perspective(400px) rotateY(180deg);
-        background: var(--secondary);
-      }
+      0% { transform: perspective(400px) rotateY(0deg); background: var(--accent); }
+      50% { background: var(--primary); }
+      100% { transform: perspective(400px) rotateY(180deg); background: var(--secondary); }
     }
 
-    /* Tier Badges */
     .tier-badge {
-      display: inline-block;
-      padding: 4px 12px;
-      font-weight: 700;
-      text-transform: uppercase;
-      border: 3px solid var(--main-black);
-      box-shadow: 2px 2px 0px var(--main-black);
-      font-size: 0.9rem;
-      margin-bottom: 8px;
+      display: inline-block; padding: 4px 12px; font-weight: 700; text-transform: uppercase;
+      border: 3px solid var(--main-black); box-shadow: 2px 2px 0px var(--main-black);
+      font-size: 0.9rem; margin-bottom: 8px;
     }
-
-    .tier-Easy {
-      background: var(--success);
-    }
-
-    .tier-Medium {
-      background: var(--primary);
-    }
-
-    .tier-Hard {
-      background: var(--secondary);
-      color: white;
-    }
+    .tier-Easy { background: var(--success); }
+    .tier-Medium { background: var(--primary); }
+    .tier-Hard { background: var(--secondary); color: white; }
 
     pre {
-      background: var(--main-black);
-      color: var(--success);
-      padding: 16px;
-      overflow-x: auto;
-      border: var(--border-width) solid var(--main-black);
-      max-height: 400px;
+      background: var(--main-black); color: var(--success); padding: 16px;
+      overflow-x: auto; border: var(--border-width) solid var(--main-black); max-height: 400px;
     }
 
     .top-controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 24px;
+      display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;
     }
   </style>
 </head>
@@ -254,15 +176,17 @@
 
   <div class="container">
     <div class="top-controls">
-      <h1 class="brutal-title">Startup Simulator v1</h1>
-      <div style="display:flex; gap:16px; align-items:center;">
-        <button class="brutal-btn small" onclick="toggleLog()">Toggle AI Console</button>
+      <h1 class="brutal-title">Simulator v1</h1>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <button id="modeBusiness" class="brutal-btn small" style="background: var(--primary);" onclick="setMode('business')">🏢 Business</button>
+        <button id="modeNonprofit" class="brutal-btn small" style="background: #fff;" onclick="setMode('nonprofit')">🤝 Non-Profit</button>
+        <button class="brutal-btn small" onclick="toggleLog()" style="margin-left:8px;">Toggle AI Console</button>
       </div>
     </div>
 
     <!-- Pitch Section -->
     <div id="pitchSection" class="brutal-card" style="background: var(--secondary)">
-      <h2>1. Pitch Your Startup</h2>
+      <h2 id="pitchTitle">1. Pitch Your Startup</h2>
       <p style="margin-bottom: 16px;">Feed the AI your idea for initial evaluation.</p>
 
       <div style="display: flex; gap: 16px;">
@@ -279,24 +203,24 @@
 
       <div style="display: flex; gap: 16px;">
         <div style="flex: 1;">
-          <label>Target Users</label>
+          <label id="lblUsers">Target Users</label>
           <input type="text" id="inUsers" class="brutal-input" value="Busy Consumers">
         </div>
         <div style="flex: 1;">
-          <label>Starting Budget ($)</label>
+          <label id="lblBudget">Starting Budget ($)</label>
           <input type="number" id="inBudget" class="brutal-input" value="25000">
         </div>
       </div>
 
       <div style="margin-top: 8px; display: flex; align-items: center; gap: 16px;">
-        <button class="brutal-btn" onclick="analyzeStartup()">Analyze Startup</button>
+        <button class="brutal-btn" onclick="analyzeStartup()">Analyze Pitch</button>
         <span id="loaderAnalyze" class="brutal-spinner-square"></span>
       </div>
     </div>
 
     <!-- State Dashboard -->
     <div id="stateDashboard" class="brutal-card" style="background: #fff">
-      <h2>2. Live Startup Dashboard — Month <span id="monthHeading">1</span> (<span id="startupTypeHeading"></span>)
+      <h2>2. Live Dashboard — Month <span id="monthHeading">1</span> (<span id="startupTypeHeading"></span>)
       </h2>
       <div class="stats-grid" id="statsGrid">
         <!-- Stats injected here -->
@@ -305,9 +229,9 @@
       <!-- Breakdown Metrics -->
       <div
         style="margin-top: 16px; padding: 12px; background: #eee; border: 3px solid #111; font-weight: bold; display: flex; justify-content: space-between;">
-        <span>Idea Clarity: <span id="scoreIdea"></span>/100</span>
-        <span>Market Fit: <span id="scoreMarket"></span>/100</span>
-        <span>Scalability: <span id="scoreScale"></span>/100</span>
+        <span><span id="lblScore1">Idea Clarity:</span> <span id="scoreIdea"></span>/100</span>
+        <span><span id="lblScore2">Market Fit:</span> <span id="scoreMarket"></span>/100</span>
+        <span><span id="lblScore3">Scalability:</span> <span id="scoreScale"></span>/100</span>
       </div>
 
       <div style="margin-top: 24px; display: flex; align-items: center; gap: 16px;">
@@ -328,16 +252,20 @@
         <h2>3. Monthly Challenge 🚨</h2>
         <span id="scenarioTierBadge" class="tier-badge" style="display:none;"></span>
       </div>
-      <p id="scenarioText" style="font-size: 1.2rem; margin: 16px 0; font-weight:bold;"></p>
+      <p id="scenarioText" style="font-size: 1.1rem; margin: 16px 0; white-space: pre-wrap; line-height: 1.6;"></p>
 
       <div class="scenario-choices" id="choicesContainer">
         <!-- Buttons injected here -->
       </div>
 
+      <div id="feedbackSuggestions" style="display: none; margin-top: 16px; padding: 16px; background: #fff; border: var(--border-width) solid var(--main-black); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--main-black);">
+        <h3 id="suggestionsTitle" style="margin-bottom: 8px; text-transform: uppercase;">Strategic Suggestions</h3>
+        <ul id="suggestionsList" style="margin-left: 20px; font-weight: bold;"></ul>
+      </div>
+
       <!-- After selection, options to get feedback -->
       <div id="feedbackOptions" style="display: none; margin-top: 24px; gap: 16px; align-items: center;">
-        <button class="brutal-btn" style="background: #fff;" onclick="getFeedback('explain')">🤖 Deep Explain
-          Impact</button>
+        <button class="brutal-btn" style="background: #fff;" onclick="getFeedback('explain')">🤖 Detailed Summary</button>
         <button class="brutal-btn" style="background: var(--success);" onclick="getFeedback('summarize')">🤖 Quick
           Summary</button>
         <span id="loaderChoice" class="brutal-spinner-square"></span>
@@ -357,6 +285,31 @@
     let currentState = null;
     let pendingDecision = null; // Stores what the user picked to feed to feedback API
     let stateBeforeDecision = null; // Saves state before simulation step
+    let currentAppMode = 'business';
+
+    function setMode(mode) {
+      currentAppMode = mode;
+      document.getElementById('modeBusiness').style.background = mode === 'business' ? 'var(--primary)' : '#fff';
+      document.getElementById('modeNonprofit').style.background = mode === 'nonprofit' ? 'var(--success)' : '#fff';
+      
+      if (mode === 'nonprofit') {
+        document.getElementById('lblUsers').innerText = "Target Community";
+        document.getElementById('lblBudget').innerText = "Initial Grant ($)";
+        document.getElementById('pitchSection').style.background = "var(--success)";
+        document.getElementById('pitchTitle').innerText = "1. Pitch Your NGO";
+        document.getElementById('inProblem').value = "Lack of clean drinking water in rural villages.";
+        document.getElementById('inSolution').value = "Deploying solar-powered water purifiers.";
+        document.getElementById('inUsers').value = "Rural villagers";
+      } else {
+        document.getElementById('lblUsers').innerText = "Target Users";
+        document.getElementById('lblBudget').innerText = "Starting Budget ($)";
+        document.getElementById('pitchSection').style.background = "var(--secondary)";
+        document.getElementById('pitchTitle').innerText = "1. Pitch Your Startup";
+        document.getElementById('inProblem').value = "People are too busy to cook healthy meals.";
+        document.getElementById('inSolution').value = "A smart microwave that cooks chef-quality meals.";
+        document.getElementById('inUsers').value = "Busy Consumers";
+      }
+    }
 
     function toggleLoader(id, show) {
       document.getElementById(id).style.display = show ? 'inline-block' : 'none';
@@ -378,7 +331,8 @@
         problem: document.getElementById('inProblem').value,
         solution: document.getElementById('inSolution').value,
         target_users: document.getElementById('inUsers').value,
-        budget: parseInt(document.getElementById('inBudget').value)
+        budget: parseInt(document.getElementById('inBudget').value),
+        mode: currentAppMode
       };
 
       try {
@@ -416,19 +370,43 @@
         </div>
       `;
 
+      const isNGO = state.mode === 'nonprofit';
+
       grid.innerHTML = `
         ${statCard('Score', state.score, state.score > 70 ? 'high' : (state.score < 40 ? 'danger' : ''))}
-        ${statCard('Budget', '$' + state.budget)}
-        ${statCard('Users', state.users)}
-        ${statCard('Risk', state.risk + '%', state.risk > 50 ? 'danger' : '')}
-        ${statCard('Retention', state.retention + '%')}
-        ${statCard('Growth', state.growth + '%')}
+        ${statCard(isNGO ? 'Funding' : 'Budget', '$' + state.budget)}
+        ${statCard(isNGO ? 'Impacted' : 'Users', state.users)}
+        ${statCard(isNGO ? 'Ops Risk' : 'Risk', state.risk + '%', state.risk > 50 ? 'danger' : '')}
+        ${statCard(isNGO ? 'Comm Trust' : 'Retention', state.retention + '%')}
+        ${statCard(isNGO ? 'Efficiency' : 'Growth', state.growth + '%')}
       `;
 
       if (state.score_breakdown) {
-        document.getElementById('scoreIdea').innerText = state.score_breakdown.idea_clarity;
-        document.getElementById('scoreMarket').innerText = state.score_breakdown.market_fit;
-        document.getElementById('scoreScale').innerText = state.score_breakdown.scalability;
+        const bzTips = { s1: "How well the problem and solution are defined.", s2: "How effectively the product addresses market needs.", s3: "The startup's ability to grow rapidly without breaking." };
+        const ngoTips = { s1: "Mission Alignment: The core ethical drive and relevance of the NGO.", s2: "Field Ops: The tactical ability to execute groundwork effectively.", s3: "Sustainability: The long-term viability of the community impact." };
+        const tips = isNGO ? ngoTips : bzTips;
+        
+        const lbl1 = document.getElementById('lblScore1');
+        lbl1.innerText = isNGO ? 'Mission Alignment:' : 'Idea Clarity:';
+        lbl1.title = tips.s1;
+        lbl1.style.cursor = 'help';
+        lbl1.style.textDecoration = 'underline dotted';
+        
+        const lbl2 = document.getElementById('lblScore2');
+        lbl2.innerText = isNGO ? 'Field Ops:' : 'Market Fit:';
+        lbl2.title = tips.s2;
+        lbl2.style.cursor = 'help';
+        lbl2.style.textDecoration = 'underline dotted';
+        
+        const lbl3 = document.getElementById('lblScore3');
+        lbl3.innerText = isNGO ? 'Sustainability:' : 'Scalability:';
+        lbl3.title = tips.s3;
+        lbl3.style.cursor = 'help';
+        lbl3.style.textDecoration = 'underline dotted';
+        
+        document.getElementById('scoreIdea').innerText = state.score_breakdown.score1;
+        document.getElementById('scoreMarket').innerText = state.score_breakdown.score2;
+        document.getElementById('scoreScale').innerText = state.score_breakdown.score3;
       }
     }
 
@@ -437,6 +415,7 @@
       toggleLoader('loaderScenario', true);
       document.getElementById('scenarioTierBadge').style.display = 'none';
       document.getElementById('feedbackOptions').style.display = 'none';
+      document.getElementById('feedbackSuggestions').style.display = 'none';
       document.getElementById('scenarioText').innerText = "Generating next major hurdle...";
 
       const diffElement = document.getElementById('scenarioDifficulty');
@@ -446,7 +425,7 @@
         const res = await fetch(`${API_URL}/generate-scenario`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ state: currentState, difficultyLevel })
+          body: JSON.stringify({ state: currentState, difficultyLevel, mode: currentState.mode })
         });
         const data = await res.json();
         toggleLoader('loaderScenario', false);
@@ -514,7 +493,7 @@
 
         // UI transitions: Hide choices, show post-decision feedback options
         document.getElementById('choicesContainer').style.display = 'none';
-        document.getElementById('scenarioText').innerText = `Decision made: ${decision}. Check your updated dashboard. Would you like AI to break down exactly what happened?`;
+        document.getElementById('scenarioText').innerText = `Decision made: ${decision}. Check your updated matrix. Would you like AI to deep-dive into the trade-offs?`;
 
         document.getElementById('feedbackOptions').style.display = 'flex';
 
@@ -525,6 +504,20 @@
 
     async function getFeedback(type) {
       toggleLoader('loaderChoice', true);
+      document.getElementById('feedbackOptions').style.display = 'none'; // hide buttons immediately
+      
+      let sec = 0;
+      let estTimer = null;
+      if (type === 'explain') {
+         document.getElementById('scenarioText').innerText = "Generating Detailed Summary...\nEstimated time: ~5 seconds.";
+         estTimer = setInterval(() => {
+           sec++;
+           document.getElementById('scenarioText').innerText = `Generating Detailed Summary...\nElapsed time: ${sec}s (Estimated ~5-8s).`;
+         }, 1000);
+      } else {
+         document.getElementById('scenarioText').innerText = "Generating Quick Summary...";
+      }
+
       try {
         const fbRes = await fetch(`${API_URL}/feedback`, {
           method: 'POST',
@@ -533,19 +526,35 @@
             previous_state: stateBeforeDecision,
             decision: pendingDecision,
             new_state: currentState,
-            type: type
+            type: type,
+            mode: currentState.mode
           })
         });
         const fbData = await fbRes.json();
         log('AI FEEDBACK', fbData);
 
+        if (estTimer) clearInterval(estTimer);
         document.getElementById('scenarioText').innerText = fbData.feedback;
-        document.getElementById('feedbackOptions').style.display = 'none'; // hide buttons after use
+
+        if(fbData.suggestions && fbData.suggestions.length > 0) {
+          const sList = document.getElementById('suggestionsList');
+          sList.innerHTML = '';
+          fbData.suggestions.forEach(s => {
+            const li = document.createElement('li');
+            li.innerText = s;
+            li.style.marginBottom = '8px';
+            sList.appendChild(li);
+          });
+          document.getElementById('suggestionsTitle').innerText = currentState.mode === 'nonprofit' ? 'Compassionate Suggestions' : 'Strategic Suggestions';
+          document.getElementById('feedbackSuggestions').style.display = 'block';
+        }
 
         toggleLoader('loaderChoice', false);
       } catch (e) {
+        if (typeof estTimer !== 'undefined' && estTimer) clearInterval(estTimer);
         toggleLoader('loaderChoice', false);
         log('ERROR', e);
+        document.getElementById('scenarioText').innerText = "Generation failed. Check console.";
       }
     }
   </script>

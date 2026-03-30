@@ -56,13 +56,13 @@ export const simulateAndProgress = async (req, res, next) => {
 
 export const scenarioPrompt = async (req, res, next) => {
   try {
-    const { state, difficultyLevel } = req.body;
+    const { state, difficultyLevel, mode } = req.body;
     if (!state) {
       return res.status(400).json({ error: "Missing state field" });
     }
     
     // LLM generates a challenge
-    const scenarioData = await generateScenario(state, difficultyLevel);
+    const scenarioData = await generateScenario(state, difficultyLevel, mode);
     
     res.json(scenarioData);
   } catch(err) {
@@ -72,13 +72,13 @@ export const scenarioPrompt = async (req, res, next) => {
 
 export const feedbackPrompt = async (req, res, next) => {
   try {
-    const { previous_state, decision, new_state, type } = req.body;
+    const { previous_state, decision, new_state, type, mode } = req.body;
     if (!previous_state || !decision || !new_state) {
       return res.status(400).json({ error: "Missing previous_state, decision, or new_state fields" });
     }
 
     // LLM generates feedback based on parameters
-    const feedbackData = await generateFeedback(previous_state, decision, new_state, type || 'explain');
+    const feedbackData = await generateFeedback(previous_state, decision, new_state, type || 'explain', mode);
     
     res.json(feedbackData);
   } catch (err) {
