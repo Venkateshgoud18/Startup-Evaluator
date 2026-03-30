@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Startup Evaluator - Neo-Brutalist Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-color: #f4f4f0;
+      --main-black: #111111;
+      --primary: #FFDE59;
+      /* Yellow */
+      --secondary: #FF66C4;
+      /* Pink */
+      --accent: #00E5FF;
+      /* Cyan */
+      --success: #00FF66;
+      /* Green */
+      --border-width: 4px;
+      --shadow-offset: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--main-black);
+      line-height: 1.6;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    /* Neo-Brutalist Elements */
+    .brutal-card {
+      background: white;
+      border: var(--border-width) solid var(--main-black);
+      box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--main-black);
+      padding: 24px;
+      margin-bottom: 32px;
+      transition: all 0.2s ease;
+    }
+
+    .brutal-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      margin-bottom: 24px;
+      display: inline-block;
+      background: var(--primary);
+      padding: 8px 16px;
+      border: var(--border-width) solid var(--main-black);
+      box-shadow: 4px 4px 0px var(--main-black);
+    }
+
+    .brutal-btn {
+      background: var(--accent);
+      color: var(--main-black);
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 12px 24px;
+      border: var(--border-width) solid var(--main-black);
+      box-shadow: 4px 4px 0px var(--main-black);
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.1s;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brutal-btn:hover {
+      background: var(--secondary);
+    }
+
+    .brutal-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .brutal-btn:active:not(:disabled) {
+      transform: translate(4px, 4px);
+      box-shadow: 0px 0px 0px var(--main-black);
+    }
+
+    .brutal-btn.small {
+      font-size: 0.9rem;
+      padding: 8px 16px;
+      box-shadow: 2px 2px 0px var(--main-black);
+    }
+
+    .brutal-input {
+      width: 100%;
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      padding: 12px;
+      border: var(--border-width) solid var(--main-black);
+      margin-bottom: 16px;
+      background: #fff;
+    }
+
+    .brutal-input:focus {
+      outline: none;
+      background: #f0f0f0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    .stat-box {
+      background: var(--primary);
+      border: 3px solid var(--main-black);
+      padding: 16px;
+      text-align: center;
+      font-weight: bold;
+    }
+
+    .stat-box.high {
+      background: var(--success);
+    }
+
+    .stat-box.danger {
+      background: var(--secondary);
+    }
+
+    .stat-value {
+      font-size: 2rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    #stateDashboard,
+    #scenarioSection,
+    #logSection {
+      display: none;
+    }
+
+    .scenario-choices {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .choice-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 250px;
+    }
+
+    .choice-preview {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: var(--main-black);
+      text-align: center;
+      background: #fff;
+      padding: 4px;
+      border: 2px solid #000;
+    }
+
+    /* Square Flipping Spinner */
+    .brutal-spinner-square {
+      display: none;
+      width: 20px;
+      height: 20px;
+      background: var(--main-black);
+      border: 2px solid var(--bg-color);
+      box-shadow: 3px 3px 0px var(--main-black);
+      animation: brutal-flip 0.8s infinite alternate ease-in-out;
+    }
+
+    @keyframes brutal-flip {
+      0% {
+        transform: perspective(400px) rotateY(0deg);
+        background: var(--accent);
+      }
+
+      50% {
+        background: var(--primary);
+      }
+
+      100% {
+        transform: perspective(400px) rotateY(180deg);
+        background: var(--secondary);
+      }
+    }
+
+    /* Tier Badges */
+    .tier-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 3px solid var(--main-black);
+      box-shadow: 2px 2px 0px var(--main-black);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
+    }
+
+    .tier-Easy {
+      background: var(--success);
+    }
+
+    .tier-Medium {
+      background: var(--primary);
+    }
+
+    .tier-Hard {
+      background: var(--secondary);
+      color: white;
+    }
+
+    pre {
+      background: var(--main-black);
+      color: var(--success);
+      padding: 16px;
+      overflow-x: auto;
+      border: var(--border-width) solid var(--main-black);
+      max-height: 400px;
+    }
+
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="top-controls">
+      <h1 class="brutal-title">Startup Simulator v1</h1>
+      <div style="display:flex; gap:16px; align-items:center;">
+        <button class="brutal-btn small" onclick="toggleLog()">Toggle AI Console</button>
+      </div>
+    </div>
+
+    <!-- Pitch Section -->
+    <div id="pitchSection" class="brutal-card" style="background: var(--secondary)">
+      <h2>1. Pitch Your Startup</h2>
+      <p style="margin-bottom: 16px;">Feed the AI your idea for initial evaluation.</p>
+
+      <div style="display: flex; gap: 16px;">
+        <div style="flex: 1;">
+          <label>Problem</label>
+          <input type="text" id="inProblem" class="brutal-input" value="People are too busy to cook healthy meals.">
+        </div>
+        <div style="flex: 1;">
+          <label>Solution</label>
+          <input type="text" id="inSolution" class="brutal-input"
+            value="A smart microwave that cooks chef-quality meals.">
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 16px;">
+        <div style="flex: 1;">
+          <label>Target Users</label>
+          <input type="text" id="inUsers" class="brutal-input" value="Busy Consumers">
+        </div>
+        <div style="flex: 1;">
+          <label>Starting Budget ($)</label>
+          <input type="number" id="inBudget" class="brutal-input" value="25000">
+        </div>
+      </div>
+
+      <div style="margin-top: 8px; display: flex; align-items: center; gap: 16px;">
+        <button class="brutal-btn" onclick="analyzeStartup()">Analyze Startup</button>
+        <span id="loaderAnalyze" class="brutal-spinner-square"></span>
+      </div>
+    </div>
+
+    <!-- State Dashboard -->
+    <div id="stateDashboard" class="brutal-card" style="background: #fff">
+      <h2>2. Live Startup Dashboard — Month <span id="monthHeading">1</span> (<span id="startupTypeHeading"></span>)
+      </h2>
+      <div class="stats-grid" id="statsGrid">
+        <!-- Stats injected here -->
+      </div>
+
+      <!-- Breakdown Metrics -->
+      <div
+        style="margin-top: 16px; padding: 12px; background: #eee; border: 3px solid #111; font-weight: bold; display: flex; justify-content: space-between;">
+        <span>Idea Clarity: <span id="scoreIdea"></span>/100</span>
+        <span>Market Fit: <span id="scoreMarket"></span>/100</span>
+        <span>Scalability: <span id="scoreScale"></span>/100</span>
+      </div>
+
+      <div style="margin-top: 24px; display: flex; align-items: center; gap: 16px;">
+        <select id="scenarioDifficulty" class="brutal-input"
+          style="width: auto; margin: 0; padding: 10px; font-weight: bold; cursor: pointer;">
+          <option value="Easy">Easy</option>
+          <option value="Medium" selected>Medium</option>
+          <option value="Hard">Hard</option>
+        </select>
+        <button class="brutal-btn" onclick="fetchScenario()">Generate Next Scenario</button>
+        <span id="loaderScenario" class="brutal-spinner-square"></span>
+      </div>
+    </div>
+
+    <!-- Scenario / Challenge Section -->
+    <div id="scenarioSection" class="brutal-card" style="background: var(--primary)">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+        <h2>3. Monthly Challenge 🚨</h2>
+        <span id="scenarioTierBadge" class="tier-badge" style="display:none;"></span>
+      </div>
+      <p id="scenarioText" style="font-size: 1.2rem; margin: 16px 0; font-weight:bold;"></p>
+
+      <div class="scenario-choices" id="choicesContainer">
+        <!-- Buttons injected here -->
+      </div>
+
+      <!-- After selection, options to get feedback -->
+      <div id="feedbackOptions" style="display: none; margin-top: 24px; gap: 16px; align-items: center;">
+        <button class="brutal-btn" style="background: #fff;" onclick="getFeedback('explain')">🤖 Deep Explain
+          Impact</button>
+        <button class="brutal-btn" style="background: var(--success);" onclick="getFeedback('summarize')">🤖 Quick
+          Summary</button>
+        <span id="loaderChoice" class="brutal-spinner-square"></span>
+      </div>
+    </div>
+
+    <!-- Logs Section -->
+    <div id="logSection" class="brutal-card">
+      <h2>AI Console Log</h2>
+      <pre id="logOutput">// Awaiting initialization...</pre>
+    </div>
+
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:8080/api';
+    let currentState = null;
+    let pendingDecision = null; // Stores what the user picked to feed to feedback API
+    let stateBeforeDecision = null; // Saves state before simulation step
+
+    function toggleLoader(id, show) {
+      document.getElementById(id).style.display = show ? 'inline-block' : 'none';
+    }
+
+    function toggleLog() {
+      const logSec = document.getElementById('logSection');
+      logSec.style.display = logSec.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function log(title, obj) {
+      const logger = document.getElementById('logOutput');
+      logger.innerText = `[${title}]\n` + JSON.stringify(obj, null, 2) + "\n\n" + logger.innerText;
+    }
+
+    async function analyzeStartup() {
+      toggleLoader('loaderAnalyze', true);
+      const payload = {
+        problem: document.getElementById('inProblem').value,
+        solution: document.getElementById('inSolution').value,
+        target_users: document.getElementById('inUsers').value,
+        budget: parseInt(document.getElementById('inBudget').value)
+      };
+
+      try {
+        const res = await fetch(`${API_URL}/analyze-startup`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        toggleLoader('loaderAnalyze', false);
+        log('ANALYSIS RESULT', data);
+
+        currentState = data._initialState;
+
+        document.getElementById('startupTypeHeading').innerText = data.startup_type;
+        updateDashboard(currentState);
+        document.getElementById('stateDashboard').style.display = 'block';
+        document.getElementById('scenarioSection').style.display = 'none';
+
+      } catch (e) {
+        toggleLoader('loaderAnalyze', false);
+        log('ERROR', e);
+      }
+    }
+
+    function updateDashboard(state) {
+      if (!state) return;
+      document.getElementById('monthHeading').innerText = state.month;
+
+      const grid = document.getElementById('statsGrid');
+      const statCard = (label, val, themeClass = '') => `
+        <div class="stat-box ${themeClass}">
+          <div class="stat-value">${val}</div>
+          <div class="stat-label">${label}</div>
+        </div>
+      `;
+
+      grid.innerHTML = `
+        ${statCard('Score', state.score, state.score > 70 ? 'high' : (state.score < 40 ? 'danger' : ''))}
+        ${statCard('Budget', '$' + state.budget)}
+        ${statCard('Users', state.users)}
+        ${statCard('Risk', state.risk + '%', state.risk > 50 ? 'danger' : '')}
+        ${statCard('Retention', state.retention + '%')}
+        ${statCard('Growth', state.growth + '%')}
+      `;
+
+      if (state.score_breakdown) {
+        document.getElementById('scoreIdea').innerText = state.score_breakdown.idea_clarity;
+        document.getElementById('scoreMarket').innerText = state.score_breakdown.market_fit;
+        document.getElementById('scoreScale').innerText = state.score_breakdown.scalability;
+      }
+    }
+
+    async function fetchScenario() {
+      if (!currentState) return;
+      toggleLoader('loaderScenario', true);
+      document.getElementById('scenarioTierBadge').style.display = 'none';
+      document.getElementById('feedbackOptions').style.display = 'none';
+      document.getElementById('scenarioText').innerText = "Generating next major hurdle...";
+
+      const diffElement = document.getElementById('scenarioDifficulty');
+      const difficultyLevel = diffElement ? diffElement.value : "Medium";
+
+      try {
+        const res = await fetch(`${API_URL}/generate-scenario`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state: currentState, difficultyLevel })
+        });
+        const data = await res.json();
+        toggleLoader('loaderScenario', false);
+
+        log('SCENARIO GENERATED', data);
+
+        document.getElementById('scenarioSection').style.display = 'block';
+        document.getElementById('scenarioText').innerText = `"${data.scenario}"`;
+
+        if (data.tier) {
+          const badge = document.getElementById('scenarioTierBadge');
+          badge.className = 'tier-badge tier-' + data.tier;
+          badge.innerText = data.tier + " Difficulty";
+          badge.style.display = 'inline-block';
+        }
+
+        const choicesContainer = document.getElementById('choicesContainer');
+        choicesContainer.innerHTML = '';
+        choicesContainer.style.display = 'flex';
+
+        data.choices.forEach(choice => {
+          const group = document.createElement('div');
+          group.className = 'choice-group';
+
+          const btn = document.createElement('button');
+          btn.className = 'brutal-btn';
+          btn.style.background = '#fff';
+          btn.style.width = '100%';
+          btn.innerText = choice.action || choice;
+          btn.onclick = () => makeDecision(choice.action || choice);
+
+          const preview = document.createElement('div');
+          preview.className = 'choice-preview';
+          preview.innerText = choice.preview || '???';
+
+          group.appendChild(btn);
+          group.appendChild(preview);
+          choicesContainer.appendChild(group);
+        });
+
+      } catch (e) {
+        toggleLoader('loaderScenario', false);
+        log('ERROR', e);
+      }
+    }
+
+    async function makeDecision(decision) {
+      try {
+        stateBeforeDecision = JSON.parse(JSON.stringify(currentState));
+        pendingDecision = decision;
+
+        // Step 1: Simulate the step locally/deterministically IMMEDIATELY
+        const stepRes = await fetch(`${API_URL}/simulate-step`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ state: currentState, decision })
+        });
+        const stepData = await stepRes.json();
+
+        // Update state on frontend
+        currentState = stepData.new_state;
+        updateDashboard(currentState);
+
+        log('SIMULATION RESULT', stepData);
+
+        // UI transitions: Hide choices, show post-decision feedback options
+        document.getElementById('choicesContainer').style.display = 'none';
+        document.getElementById('scenarioText').innerText = `Decision made: ${decision}. Check your updated dashboard. Would you like AI to break down exactly what happened?`;
+
+        document.getElementById('feedbackOptions').style.display = 'flex';
+
+      } catch (e) {
+        log('ERROR', e);
+      }
+    }
+
+    async function getFeedback(type) {
+      toggleLoader('loaderChoice', true);
+      try {
+        const fbRes = await fetch(`${API_URL}/feedback`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            previous_state: stateBeforeDecision,
+            decision: pendingDecision,
+            new_state: currentState,
+            type: type
+          })
+        });
+        const fbData = await fbRes.json();
+        log('AI FEEDBACK', fbData);
+
+        document.getElementById('scenarioText').innerText = fbData.feedback;
+        document.getElementById('feedbackOptions').style.display = 'none'; // hide buttons after use
+
+        toggleLoader('loaderChoice', false);
+      } catch (e) {
+        toggleLoader('loaderChoice', false);
+        log('ERROR', e);
+      }
+    }
+  </script>
+</body>
+
+</html>
