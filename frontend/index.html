@@ -6,6 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Startup Evaluator - Neo-Brutalist Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <style>
     :root {
       --bg-color: #f4f4f0;
@@ -76,8 +77,15 @@
       gap: 12px;
     }
 
-    .brutal-btn:hover { background: var(--secondary); }
-    .brutal-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .brutal-btn:hover {
+      background: var(--secondary);
+    }
+
+    .brutal-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
     .brutal-btn:active:not(:disabled) {
       transform: translate(4px, 4px);
       box-shadow: 0px 0px 0px var(--main-black);
@@ -119,55 +127,164 @@
       font-weight: bold;
     }
 
-    .stat-box.high { background: var(--success); }
-    .stat-box.danger { background: var(--secondary); }
+    .stat-box.high {
+      background: var(--success);
+    }
 
-    .stat-value { font-size: 2rem; }
-    .stat-label { font-size: 0.8rem; text-transform: uppercase; }
+    .stat-box.danger {
+      background: var(--secondary);
+    }
 
-    #stateDashboard, #scenarioSection, #logSection { display: none; }
+    .stat-value {
+      font-size: 2rem;
+    }
+
+    .stat-label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+    }
+
+    #stateDashboard,
+    #scenarioSection,
+    #logSection {
+      display: none;
+    }
 
     .scenario-choices {
-      display: flex; gap: 16px; margin-top: 24px; flex-wrap: wrap; align-items: flex-start;
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+      flex-wrap: wrap;
+      align-items: flex-start;
     }
 
     .choice-group {
-      display: flex; flex-direction: column; gap: 8px; flex: 1; min-width: 250px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-width: 250px;
     }
 
     .choice-preview {
-      font-size: 0.9rem; font-weight: bold; color: var(--main-black); text-align: center;
-      background: #fff; padding: 4px; border: 2px solid #000;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: var(--main-black);
+      text-align: center;
+      background: #fff;
+      padding: 4px;
+      border: 2px solid #000;
+    }
+
+    /* Modal Styles */
+    .evolution-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 1000;
+      justify-content: center;
+      align-items: center;
+      padding: 16px;
+    }
+
+    .modal-content {
+      background: #fff;
+      border: 4px solid var(--main-black);
+      box-shadow: 8px 8px 0px var(--main-black);
+      padding: 24px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .timeline-card {
+      border-left: 6px solid var(--primary);
+      padding-left: 16px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .timeline-card::before {
+      content: '';
+      position: absolute;
+      left: -14px;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      background: var(--main-black);
+      border: 3px solid #fff;
     }
 
     .brutal-spinner-square {
-      display: none; width: 20px; height: 20px; background: var(--main-black);
-      border: 2px solid var(--bg-color); box-shadow: 3px 3px 0px var(--main-black);
+      display: none;
+      width: 20px;
+      height: 20px;
+      background: var(--main-black);
+      border: 2px solid var(--bg-color);
+      box-shadow: 3px 3px 0px var(--main-black);
       animation: brutal-flip 0.8s infinite alternate ease-in-out;
     }
 
     @keyframes brutal-flip {
-      0% { transform: perspective(400px) rotateY(0deg); background: var(--accent); }
-      50% { background: var(--primary); }
-      100% { transform: perspective(400px) rotateY(180deg); background: var(--secondary); }
+      0% {
+        transform: perspective(400px) rotateY(0deg);
+        background: var(--accent);
+      }
+
+      50% {
+        background: var(--primary);
+      }
+
+      100% {
+        transform: perspective(400px) rotateY(180deg);
+        background: var(--secondary);
+      }
     }
 
     .tier-badge {
-      display: inline-block; padding: 4px 12px; font-weight: 700; text-transform: uppercase;
-      border: 3px solid var(--main-black); box-shadow: 2px 2px 0px var(--main-black);
-      font-size: 0.9rem; margin-bottom: 8px;
+      display: inline-block;
+      padding: 4px 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      border: 3px solid var(--main-black);
+      box-shadow: 2px 2px 0px var(--main-black);
+      font-size: 0.9rem;
+      margin-bottom: 8px;
     }
-    .tier-Easy { background: var(--success); }
-    .tier-Medium { background: var(--primary); }
-    .tier-Hard { background: var(--secondary); color: white; }
+
+    .tier-Easy {
+      background: var(--success);
+    }
+
+    .tier-Medium {
+      background: var(--primary);
+    }
+
+    .tier-Hard {
+      background: var(--secondary);
+      color: white;
+    }
 
     pre {
-      background: var(--main-black); color: var(--success); padding: 16px;
-      overflow-x: auto; border: var(--border-width) solid var(--main-black); max-height: 400px;
+      background: var(--main-black);
+      color: var(--success);
+      padding: 16px;
+      overflow-x: auto;
+      border: var(--border-width) solid var(--main-black);
+      max-height: 400px;
     }
 
     .top-controls {
-      display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 24px;
     }
   </style>
 </head>
@@ -178,8 +295,10 @@
     <div class="top-controls">
       <h1 class="brutal-title">Simulator v1</h1>
       <div style="display:flex; gap:12px; align-items:center;">
-        <button id="modeBusiness" class="brutal-btn small" style="background: var(--primary);" onclick="setMode('business')">🏢 Business</button>
-        <button id="modeNonprofit" class="brutal-btn small" style="background: #fff;" onclick="setMode('nonprofit')">🤝 Non-Profit</button>
+        <button id="modeBusiness" class="brutal-btn small" style="background: var(--primary);"
+          onclick="setMode('business')">🏢 Business</button>
+        <button id="modeNonprofit" class="brutal-btn small" style="background: #fff;" onclick="setMode('nonprofit')">🤝
+          Non-Profit</button>
         <button class="brutal-btn small" onclick="toggleLog()" style="margin-left:8px;">Toggle AI Console</button>
       </div>
     </div>
@@ -212,6 +331,45 @@
         </div>
       </div>
 
+      <div style="margin-bottom: 16px;">
+        <details
+          style="cursor: pointer; background: #fff; border: 3px solid var(--main-black); padding: 12px; box-shadow: 4px 4px 0px var(--main-black);">
+          <summary style="font-weight: bold; margin-bottom: 8px; font-size: 0.95rem; text-transform: uppercase;">➕ Add
+            Optional Context (Improves AI Analysis)</summary>
+          <div style="display: flex; gap: 16px; margin-top: 12px; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.85rem; font-weight: bold;">Current Stage</label>
+              <select id="inStage" class="brutal-input" style="padding: 8px; font-size: 0.9rem; margin-bottom: 0;">
+                <option value="Idea/Conceptual">Idea Only</option>
+                <option value="Prototype/MVP">Prototype / MVP</option>
+                <option value="Launched (Pre-Revenue)">Launched</option>
+                <option value="Generating Revenue">Generating Revenue/Impact</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+              <label style="font-size: 0.85rem; font-weight: bold;">Team Capability</label>
+              <select id="inTeam" class="brutal-input" style="padding: 8px; font-size: 0.9rem; margin-bottom: 0;">
+                <option value="Solo Founder">Solo Founder</option>
+                <option value="Technical/Domain Experts">Domain Experts</option>
+                <option value="Balanced Team (Tech + Biz)">Balanced Team</option>
+                <option value="Outsourced">Outsourced Tech</option>
+              </select>
+            </div>
+            <div style="flex: 1; min-width: 150px;">
+              <label id="lblMonetization" style="font-size: 0.85rem; font-weight: bold;">Revenue Model</label>
+              <select id="inMonetization" class="brutal-input"
+                style="padding: 8px; font-size: 0.9rem; margin-bottom: 0;">
+                <option value="Subscription / SaaS">Subscription</option>
+                <option value="Ads / Sponsorships">Ads</option>
+                <option value="One-time Sales">One-time Sales</option>
+                <option value="Marketplace / Commission">Marketplace</option>
+                <option value="Donations / Grants">Donations (NGO)</option>
+              </select>
+            </div>
+          </div>
+        </details>
+      </div>
+
       <div style="margin-top: 8px; display: flex; align-items: center; gap: 16px;">
         <button class="brutal-btn" onclick="analyzeStartup()">Analyze Pitch</button>
         <span id="loaderAnalyze" class="brutal-spinner-square"></span>
@@ -220,8 +378,15 @@
 
     <!-- State Dashboard -->
     <div id="stateDashboard" class="brutal-card" style="background: #fff">
-      <h2>2. Live Dashboard — Month <span id="monthHeading">1</span> (<span id="startupTypeHeading"></span>)
-      </h2>
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+        <h2>2. Live Dashboard — Month <span id="monthHeading">1</span> (<span id="startupTypeHeading"></span>)</h2>
+        <div style="display: flex; gap: 8px;">
+          <button class="brutal-btn small" style="background: var(--accent);" onclick="openEvolutionTimeline()">🕰 View
+            Evolution</button>
+          <button class="brutal-btn small" style="background: var(--success);" onclick="exportData()">📥 Export
+            Log</button>
+        </div>
+      </div>
       <div class="stats-grid" id="statsGrid">
         <!-- Stats injected here -->
       </div>
@@ -234,7 +399,7 @@
         <span><span id="lblScore3">Scalability:</span> <span id="scoreScale"></span>/100</span>
       </div>
 
-      <div style="margin-top: 24px; display: flex; align-items: center; gap: 16px;">
+      <div style="margin-top: 24px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;">
         <select id="scenarioDifficulty" class="brutal-input"
           style="width: auto; margin: 0; padding: 10px; font-weight: bold; cursor: pointer;">
           <option value="Easy">Easy</option>
@@ -242,7 +407,29 @@
           <option value="Hard">Hard</option>
         </select>
         <button class="brutal-btn" onclick="fetchScenario()">Generate Next Scenario</button>
+        <button class="brutal-btn" style="background: #fff; color: var(--main-black);"
+          onclick="toggleRefinementPanel()">✍️ Refine Pitch</button>
         <span id="loaderScenario" class="brutal-spinner-square"></span>
+      </div>
+
+      <!-- Pitch Refinement UI -->
+      <div id="refinementPanel"
+        style="display: none; margin-top: 16px; padding: 16px; border: 3px dashed var(--main-black); background: #fafafa;">
+        <h3 style="margin-bottom: 8px;">Pivot / Refine Your Core Idea</h3>
+        <p style="font-size: 0.85rem; margin-bottom: 12px; color: #555;"><strong>Cost:</strong> 1 Month Timeline delay &
+          $1,000 budget deduction. Use AI feedback to pivot intelligently.</p>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Refined Problem</label>
+            <input type="text" id="refineProblem" class="brutal-input">
+          </div>
+          <div>
+            <label style="font-size: 0.85rem; font-weight: bold;">Refined Solution</label>
+            <input type="text" id="refineSolution" class="brutal-input">
+          </div>
+          <button class="brutal-btn" style="align-self: flex-start; background: var(--secondary); color: #fff;"
+            onclick="saveRefinement()">Save Pivot</button>
+        </div>
       </div>
     </div>
 
@@ -258,14 +445,34 @@
         <!-- Buttons injected here -->
       </div>
 
-      <div id="feedbackSuggestions" style="display: none; margin-top: 16px; padding: 16px; background: #fff; border: var(--border-width) solid var(--main-black); box-shadow: var(--shadow-offset) var(--shadow-offset) 0px var(--main-black);">
-        <h3 id="suggestionsTitle" style="margin-bottom: 8px; text-transform: uppercase;">Strategic Suggestions</h3>
-        <ul id="suggestionsList" style="margin-left: 20px; font-weight: bold;"></ul>
+      <!-- Consequences / Metric Differences -->
+      <div id="metricChanges"
+        style="display: none; margin-top: 24px; padding: 16px; background: #fff; border: 3px dashed var(--main-black);">
+        <h3 style="margin-bottom: 12px; text-transform: uppercase;">📊 Outcomes</h3>
+        <div id="metricChangesList" style="display: flex; gap: 12px; flex-wrap: wrap;"></div>
+      </div>
+
+      <!-- Suggestions Section -->
+      <div id="feedbackSuggestions"
+        style="display: none; margin-top: 24px; padding: 16px; border: 2px solid #000; background: var(--warning);">
+        <h3 id="suggestionsTitle">Strategic Suggestions</h3>
+        <ul id="suggestionsList" style="margin-top: 8px; padding-left: 20px;"></ul>
+      </div>
+
+      <!-- Undo Options -->
+      <div id="undoOptions" style="display: none; margin-top: 24px;">
+        <div style="padding: 12px; border: 2px dashed var(--danger); background: #ffebee; margin-bottom: 12px;">
+          <strong>⚠️ Critical Outcome Detected.</strong> The board / community reacted poorly. You have the option to
+          rewind time.
+        </div>
+        <button class="brutal-btn" style="background: var(--danger); color: white;" onclick="undoDecision()">⏪ Rewind &
+          Try Again</button>
       </div>
 
       <!-- After selection, options to get feedback -->
       <div id="feedbackOptions" style="display: none; margin-top: 24px; gap: 16px; align-items: center;">
-        <button class="brutal-btn" style="background: #fff;" onclick="getFeedback('explain')">🤖 Detailed Summary</button>
+        <button class="brutal-btn" style="background: #fff;" onclick="getFeedback('explain')">🤖 Detailed
+          Summary</button>
         <button class="brutal-btn" style="background: var(--success);" onclick="getFeedback('summarize')">🤖 Quick
           Summary</button>
         <span id="loaderChoice" class="brutal-spinner-square"></span>
@@ -286,23 +493,29 @@
     let pendingDecision = null; // Stores what the user picked to feed to feedback API
     let stateBeforeDecision = null; // Saves state before simulation step
     let currentAppMode = 'business';
+    let latestChoices = []; // Cache choices so we can restore them on Undo
+    let timelineHistory = []; // Tracks Version History
 
     function setMode(mode) {
       currentAppMode = mode;
       document.getElementById('modeBusiness').style.background = mode === 'business' ? 'var(--primary)' : '#fff';
       document.getElementById('modeNonprofit').style.background = mode === 'nonprofit' ? 'var(--success)' : '#fff';
-      
+
       if (mode === 'nonprofit') {
         document.getElementById('lblUsers').innerText = "Target Community";
         document.getElementById('lblBudget').innerText = "Initial Grant ($)";
+        const monLbl = document.getElementById('lblMonetization');
+        if (monLbl) monLbl.innerText = "Funding Model";
         document.getElementById('pitchSection').style.background = "var(--success)";
         document.getElementById('pitchTitle').innerText = "1. Pitch Your NGO";
-        document.getElementById('inProblem').value = "Lack of clean drinking water in rural villages.";
-        document.getElementById('inSolution').value = "Deploying solar-powered water purifiers.";
-        document.getElementById('inUsers').value = "Rural villagers";
+        document.getElementById('inProblem').value = "Lack of access to fresh, nutritious food in urban food deserts.";
+        document.getElementById('inSolution').value = "Building scalable, shipping-container hydroponic community farms.";
+        document.getElementById('inUsers').value = "Low-income urban families";
       } else {
         document.getElementById('lblUsers').innerText = "Target Users";
         document.getElementById('lblBudget').innerText = "Starting Budget ($)";
+        const monLbl = document.getElementById('lblMonetization');
+        if (monLbl) monLbl.innerText = "Revenue Model";
         document.getElementById('pitchSection').style.background = "var(--secondary)";
         document.getElementById('pitchTitle').innerText = "1. Pitch Your Startup";
         document.getElementById('inProblem').value = "People are too busy to cook healthy meals.";
@@ -332,6 +545,9 @@
         solution: document.getElementById('inSolution').value,
         target_users: document.getElementById('inUsers').value,
         budget: parseInt(document.getElementById('inBudget').value),
+        stage: document.getElementById('inStage') ? document.getElementById('inStage').value : undefined,
+        team_capability: document.getElementById('inTeam') ? document.getElementById('inTeam').value : undefined,
+        monetization: document.getElementById('inMonetization') ? document.getElementById('inMonetization').value : undefined,
         mode: currentAppMode
       };
 
@@ -346,6 +562,10 @@
         log('ANALYSIS RESULT', data);
 
         currentState = data._initialState;
+
+        // Reset History on new pitch
+        timelineHistory = [];
+        captureSnapshot("Initial Pitch");
 
         document.getElementById('startupTypeHeading').innerText = data.startup_type;
         updateDashboard(currentState);
@@ -363,8 +583,8 @@
       document.getElementById('monthHeading').innerText = state.month;
 
       const grid = document.getElementById('statsGrid');
-      const statCard = (label, val, themeClass = '') => `
-        <div class="stat-box ${themeClass}">
+      const statCard = (label, val, tooltip, themeClass = '') => `
+        <div class="stat-box ${themeClass}" title="${tooltip}" style="cursor: help; text-decoration: underline dotted; text-underline-offset: 4px;">
           <div class="stat-value">${val}</div>
           <div class="stat-label">${label}</div>
         </div>
@@ -372,38 +592,54 @@
 
       const isNGO = state.mode === 'nonprofit';
 
+      const tooltips = isNGO ? {
+        score: "Overall Health based on alignment, ops, and sustainability.",
+        budget: "Total grant money and donations available to spend.",
+        users: "Number of community members positively impacted.",
+        risk: "Operational risk of failure, burnout, or non-compliance.",
+        retention: "Trust from the local community and stakeholders.",
+        growth: "Efficiency in scaling operations and impact over time."
+      } : {
+        score: "Overall Startup Health based on idea, market, and scaling.",
+        budget: "Current cash available (runway).",
+        users: "Active paying or engaged users on the platform.",
+        risk: "Likelihood of catastrophic failure (run out of money/legal trouble).",
+        retention: "Percentage of users that keep coming back (churn inverse).",
+        growth: "Month-over-month platform growth rate."
+      };
+
       grid.innerHTML = `
-        ${statCard('Score', state.score, state.score > 70 ? 'high' : (state.score < 40 ? 'danger' : ''))}
-        ${statCard(isNGO ? 'Funding' : 'Budget', '$' + state.budget)}
-        ${statCard(isNGO ? 'Impacted' : 'Users', state.users)}
-        ${statCard(isNGO ? 'Ops Risk' : 'Risk', state.risk + '%', state.risk > 50 ? 'danger' : '')}
-        ${statCard(isNGO ? 'Comm Trust' : 'Retention', state.retention + '%')}
-        ${statCard(isNGO ? 'Efficiency' : 'Growth', state.growth + '%')}
+        ${statCard('Score', state.score, tooltips.score, state.score > 70 ? 'high' : (state.score < 40 ? 'danger' : ''))}
+        ${statCard(isNGO ? 'Funding' : 'Budget', '$' + state.budget, tooltips.budget)}
+        ${statCard(isNGO ? 'Impacted' : 'Users', state.users, tooltips.users)}
+        ${statCard(isNGO ? 'Ops Risk' : 'Risk', state.risk + '%', tooltips.risk, state.risk > 50 ? 'danger' : '')}
+        ${statCard(isNGO ? 'Comm Trust' : 'Retention', state.retention + '%', tooltips.retention)}
+        ${statCard(isNGO ? 'Efficiency' : 'Growth', state.growth + '%', tooltips.growth)}
       `;
 
       if (state.score_breakdown) {
         const bzTips = { s1: "How well the problem and solution are defined.", s2: "How effectively the product addresses market needs.", s3: "The startup's ability to grow rapidly without breaking." };
         const ngoTips = { s1: "Mission Alignment: The core ethical drive and relevance of the NGO.", s2: "Field Ops: The tactical ability to execute groundwork effectively.", s3: "Sustainability: The long-term viability of the community impact." };
         const tips = isNGO ? ngoTips : bzTips;
-        
+
         const lbl1 = document.getElementById('lblScore1');
         lbl1.innerText = isNGO ? 'Mission Alignment:' : 'Idea Clarity:';
         lbl1.title = tips.s1;
         lbl1.style.cursor = 'help';
         lbl1.style.textDecoration = 'underline dotted';
-        
+
         const lbl2 = document.getElementById('lblScore2');
         lbl2.innerText = isNGO ? 'Field Ops:' : 'Market Fit:';
         lbl2.title = tips.s2;
         lbl2.style.cursor = 'help';
         lbl2.style.textDecoration = 'underline dotted';
-        
+
         const lbl3 = document.getElementById('lblScore3');
         lbl3.innerText = isNGO ? 'Sustainability:' : 'Scalability:';
         lbl3.title = tips.s3;
         lbl3.style.cursor = 'help';
         lbl3.style.textDecoration = 'underline dotted';
-        
+
         document.getElementById('scoreIdea').innerText = state.score_breakdown.score1;
         document.getElementById('scoreMarket').innerText = state.score_breakdown.score2;
         document.getElementById('scoreScale').innerText = state.score_breakdown.score3;
@@ -416,6 +652,8 @@
       document.getElementById('scenarioTierBadge').style.display = 'none';
       document.getElementById('feedbackOptions').style.display = 'none';
       document.getElementById('feedbackSuggestions').style.display = 'none';
+      document.getElementById('undoOptions').style.display = 'none';
+      document.getElementById('metricChanges').style.display = 'none';
       document.getElementById('scenarioText').innerText = "Generating next major hurdle...";
 
       const diffElement = document.getElementById('scenarioDifficulty');
@@ -446,24 +684,15 @@
         choicesContainer.innerHTML = '';
         choicesContainer.style.display = 'flex';
 
-        data.choices.forEach(choice => {
-          const group = document.createElement('div');
-          group.className = 'choice-group';
-
+        latestChoices = data.choices;
+        latestChoices.forEach(choice => {
           const btn = document.createElement('button');
           btn.className = 'brutal-btn';
           btn.style.background = '#fff';
           btn.style.width = '100%';
           btn.innerText = choice.action || choice;
           btn.onclick = () => makeDecision(choice.action || choice);
-
-          const preview = document.createElement('div');
-          preview.className = 'choice-preview';
-          preview.innerText = choice.preview || '???';
-
-          group.appendChild(btn);
-          group.appendChild(preview);
-          choicesContainer.appendChild(group);
+          choicesContainer.appendChild(btn);
         });
 
       } catch (e) {
@@ -477,7 +706,18 @@
         stateBeforeDecision = JSON.parse(JSON.stringify(currentState));
         pendingDecision = decision;
 
-        // Step 1: Simulate the step locally/deterministically IMMEDIATELY
+        // UI transitions: Hide choices immediately, show wait ticker since hitting OpenRouter
+        document.getElementById('choicesContainer').style.display = 'none';
+
+        // Add intervals
+        let sec = 0;
+        document.getElementById('scenarioText').innerText = "Simulating outcome metrics using AI Math Engine...\nEstimated time: ~4 seconds.";
+        let estTimer = setInterval(() => {
+          sec++;
+          document.getElementById('scenarioText').innerText = `Simulating outcome metrics using AI Math Engine...\nElapsed time: ${sec}s`;
+        }, 1000);
+
+        // Step 1: Simulate the step locally via OpenRouter Math Engine
         const stepRes = await fetch(`${API_URL}/simulate-step`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -485,37 +725,105 @@
         });
         const stepData = await stepRes.json();
 
+        if (estTimer) clearInterval(estTimer);
+
         // Update state on frontend
         currentState = stepData.new_state;
         updateDashboard(currentState);
 
+        const diffs = [];
+        const isNGO = currentState.mode === 'nonprofit';
+
+        const bLabel = isNGO ? 'Funding' : 'Budget';
+        if (currentState.budget !== stateBeforeDecision.budget) {
+          const diff = currentState.budget - stateBeforeDecision.budget;
+          diffs.push(`${bLabel}: ${diff > 0 ? '⬆ +$' + diff : '⬇ -$' + Math.abs(diff)}`);
+        }
+
+        const uLabel = isNGO ? 'Impacted' : 'Users';
+        if (currentState.users !== stateBeforeDecision.users) {
+          const diff = currentState.users - stateBeforeDecision.users;
+          diffs.push(`${uLabel}: ${diff > 0 ? '⬆ +' + diff : '⬇ ' + diff}`);
+        }
+
+        const rLabel = isNGO ? 'Ops Risk' : 'Risk';
+        if (currentState.risk !== stateBeforeDecision.risk) {
+          const diff = currentState.risk - stateBeforeDecision.risk;
+          diffs.push(`${rLabel}: ${diff > 0 ? '⬆ +' + diff + '%' : '⬇ ' + diff + '%'}`);
+        }
+
+        const tLabel = isNGO ? 'Comm Trust' : 'Retention';
+        if (currentState.retention !== stateBeforeDecision.retention) {
+          const diff = currentState.retention - stateBeforeDecision.retention;
+          diffs.push(`${tLabel}: ${diff > 0 ? '⬆ +' + diff + '%' : '⬇ ' + diff + '%'}`);
+        }
+
+        const gLabel = isNGO ? 'Efficiency' : 'Growth';
+        if (currentState.growth !== stateBeforeDecision.growth) {
+          const diff = currentState.growth - stateBeforeDecision.growth;
+          diffs.push(`${gLabel}: ${diff > 0 ? '⬆ +' + diff + '%' : '⬇ ' + diff + '%'}`);
+        }
+
+        const changesList = document.getElementById('metricChangesList');
+        changesList.innerHTML = '';
+        diffs.forEach(d => {
+          const span = document.createElement('span');
+          span.style.padding = '4px 12px';
+          span.style.border = '2px solid var(--main-black)';
+          span.style.fontWeight = 'bold';
+          span.style.boxShadow = '2px 2px 0px var(--main-black)';
+
+          if (d.includes('⬆')) {
+            if (d.includes('Risk')) {
+              span.style.background = 'var(--secondary)';
+              span.style.color = 'white';
+            } else {
+              span.style.background = 'var(--success)';
+            }
+          } else if (d.includes('⬇')) {
+            if (d.includes('Risk')) {
+              span.style.background = 'var(--success)';
+              span.style.color = 'var(--main-black)';
+            } else {
+              span.style.background = 'var(--secondary)';
+              span.style.color = 'white';
+            }
+          } else {
+            span.style.background = '#eee';
+          }
+          span.innerText = d;
+          changesList.appendChild(span);
+        });
+
+        // Metric changes visually populated, but we wait to show them until after feedback generation
+        document.getElementById('metricChanges').style.display = 'none';
+
         log('SIMULATION RESULT', stepData);
 
-        // UI transitions: Hide choices, show post-decision feedback options
-        document.getElementById('choicesContainer').style.display = 'none';
-        document.getElementById('scenarioText').innerText = `Decision made: ${decision}. Check your updated matrix. Would you like AI to deep-dive into the trade-offs?`;
+        document.getElementById('scenarioText').innerText = `Calculation complete! Metrics mapped successfully.\nDecision made: ${decision}.\nCheck your updated dashboard. Would you like the AI to break down the nuance of these massive timeline shifts?`;
 
         document.getElementById('feedbackOptions').style.display = 'flex';
 
       } catch (e) {
         log('ERROR', e);
+        document.getElementById('scenarioText').innerText = "Connection lost during simulation. Try again.";
       }
     }
 
     async function getFeedback(type) {
       toggleLoader('loaderChoice', true);
       document.getElementById('feedbackOptions').style.display = 'none'; // hide buttons immediately
-      
+
       let sec = 0;
       let estTimer = null;
       if (type === 'explain') {
-         document.getElementById('scenarioText').innerText = "Generating Detailed Summary...\nEstimated time: ~5 seconds.";
-         estTimer = setInterval(() => {
-           sec++;
-           document.getElementById('scenarioText').innerText = `Generating Detailed Summary...\nElapsed time: ${sec}s (Estimated ~5-8s).`;
-         }, 1000);
+        document.getElementById('scenarioText').innerText = "Generating Detailed Summary...\nEstimated time: ~5 seconds.";
+        estTimer = setInterval(() => {
+          sec++;
+          document.getElementById('scenarioText').innerText = `Generating Detailed Summary...\nElapsed time: ${sec}s (Estimated ~5-8s).`;
+        }, 1000);
       } else {
-         document.getElementById('scenarioText').innerText = "Generating Quick Summary...";
+        document.getElementById('scenarioText').innerText = "Generating Quick Summary...";
       }
 
       try {
@@ -536,7 +844,7 @@
         if (estTimer) clearInterval(estTimer);
         document.getElementById('scenarioText').innerText = fbData.feedback;
 
-        if(fbData.suggestions && fbData.suggestions.length > 0) {
+        if (fbData.suggestions && fbData.suggestions.length > 0) {
           const sList = document.getElementById('suggestionsList');
           sList.innerHTML = '';
           fbData.suggestions.forEach(s => {
@@ -549,6 +857,19 @@
           document.getElementById('feedbackSuggestions').style.display = 'block';
         }
 
+        // Trigger undo UI if negative sentiment
+        if (fbData.sentiment && String(fbData.sentiment).toLowerCase().includes('negative')) {
+          document.getElementById('undoOptions').style.display = 'block';
+        }
+
+        // Show metric outcomes now that the story is generated
+        if (document.getElementById('metricChangesList').innerHTML !== '') {
+          document.getElementById('metricChanges').style.display = 'block';
+        }
+
+        // Push snapshot to Version History since the month successfully finalized
+        captureSnapshot("Month " + (currentState.month - 1) + " Resolved");
+
         toggleLoader('loaderChoice', false);
       } catch (e) {
         if (typeof estTimer !== 'undefined' && estTimer) clearInterval(estTimer);
@@ -557,7 +878,198 @@
         document.getElementById('scenarioText').innerText = "Generation failed. Check console.";
       }
     }
+
+    function undoDecision() {
+      if (!stateBeforeDecision) return;
+
+      // Pop the failed month from history
+      timelineHistory.pop();
+
+      currentState = JSON.parse(JSON.stringify(stateBeforeDecision));
+      updateDashboard(currentState);
+
+      document.getElementById('scenarioText').innerText = "Timeline reversed. Assess the risk and choose wisely.";
+      document.getElementById('feedbackOptions').style.display = 'none';
+      document.getElementById('feedbackSuggestions').style.display = 'none';
+      document.getElementById('undoOptions').style.display = 'none';
+      document.getElementById('metricChanges').style.display = 'none';
+
+      const choicesContainer = document.getElementById('choicesContainer');
+      choicesContainer.innerHTML = '';
+      latestChoices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'brutal-btn';
+        btn.style.background = '#fff';
+        btn.style.width = '100%';
+        btn.innerText = choice.action || choice;
+        btn.onclick = () => makeDecision(choice.action || choice);
+        choicesContainer.appendChild(btn);
+      });
+      choicesContainer.style.display = 'flex';
+    }
+
+    function exportData() {
+      if (!currentState) return;
+
+      const isNGO = currentState.mode === 'nonprofit';
+      let suggestionsText = "";
+      const sList = document.getElementById('suggestionsList');
+      if (sList && sList.children.length > 0) {
+        suggestionsText = "\n\n=== " + document.getElementById('suggestionsTitle').innerText + " ===\n";
+        Array.from(sList.children).forEach(li => {
+          suggestionsText += "- " + li.innerText + "\n";
+        });
+      }
+
+      const textBody =
+        `======================================
+STARTUP EVALUATOR - MONTH ${currentState.month} STATUS
+======================================
+Mode: ${isNGO ? 'Non-Profit NGO' : 'Business Startup'}
+Overall Score: ${currentState.score}/100
+
+-- PITCH SUMMARY --
+${Object.values(currentState.pitch).join(" | ")}
+
+-- CURRENT METRICS --
+Funding / Budget: $${currentState.budget}
+Lives Impacted / Users: ${currentState.users}
+Risk: ${currentState.risk}%
+Trust / Retention: ${currentState.retention}%
+Growth / Efficiency: ${currentState.growth}%
+
+-- BREAKDOWN SCORES --
+${isNGO ? 'Mission Alignment' : 'Idea Clarity'}: ${currentState.score_breakdown.score1}/100
+${isNGO ? 'Field Ops' : 'Market Fit'}: ${currentState.score_breakdown.score2}/100
+${isNGO ? 'Sustainability' : 'Scalability'}: ${currentState.score_breakdown.score3}/100
+
+======================================
+LATEST AI SCENARIO & FEEDBACK
+======================================
+${document.getElementById('scenarioText').innerText}${suggestionsText}`;
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+
+      const splitText = doc.splitTextToSize(textBody, 180);
+      let y = 15;
+
+      for (let i = 0; i < splitText.length; i++) {
+        if (y > 280) {
+          y = 15;
+          doc.addPage();
+        }
+        doc.text(splitText[i], 10, y);
+        y += 5;
+      }
+
+      doc.save(`Startup_Report_Month_${currentState.month}.pdf`);
+    }
+
+    // --- VERSION COMPARISON & PITCH REFINEMENT LOGIC ---
+    function captureSnapshot(eventType) {
+      if (!currentState) return;
+      timelineHistory.push({
+        eventType: eventType,
+        month: currentState.month,
+        state: JSON.parse(JSON.stringify(currentState))
+      });
+    }
+
+    function toggleRefinementPanel() {
+      const panel = document.getElementById('refinementPanel');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        if (currentState) {
+          document.getElementById('refineProblem').value = currentState.pitch.problem;
+          document.getElementById('refineSolution').value = currentState.pitch.solution;
+        }
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    function saveRefinement() {
+      const newProblem = document.getElementById('refineProblem').value;
+      const newSolution = document.getElementById('refineSolution').value;
+
+      currentState.pitch.problem = newProblem;
+      currentState.pitch.solution = newSolution;
+      currentState.month += 1;
+      currentState.budget = Math.max(0, currentState.budget - 1000); // Cost of pivoting
+
+      captureSnapshot("Pivoted/Refined Pitch");
+      updateDashboard(currentState);
+
+      document.getElementById('refinementPanel').style.display = 'none';
+
+      const scText = document.getElementById('scenarioText');
+      if (scText.innerText && !scText.innerText.includes("Pitch successfully refined")) {
+        scText.innerText += "\\n\\n[SYSTEM] Pitch successfully refined. 1 Month and $1,000 deducted for strategic pivot.";
+      }
+    }
+
+    function openEvolutionTimeline() {
+      const modal = document.getElementById('evolutionModal');
+      const container = document.getElementById('timelineContainer');
+      container.innerHTML = '';
+
+      if (timelineHistory.length === 0) {
+        container.innerHTML = '<i>No history recorded yet. Analyze a pitch first!</i>';
+      } else {
+        timelineHistory.forEach((snap, idx) => {
+          let diffHtml = '';
+          const s = snap.state;
+
+          if (snap.eventType === "Pivoted/Refined Pitch") {
+            const prev = timelineHistory[idx - 1];
+            if (prev) {
+              diffHtml = `
+                 <div style="margin-top: 8px; padding: 8px; background: #e3f2fd; border-left: 4px solid #1e88e5;">
+                   <b style="color: #c62828;">Previous Problem:</b> <s>${prev.state.pitch.problem}</s><br>
+                   <b style="color: #2e7d32;">New Problem:</b> ${s.pitch.problem}<br><br>
+                   <b style="color: #c62828;">Previous Solution:</b> <s>${prev.state.pitch.solution}</s><br>
+                   <b style="color: #2e7d32;">New Solution:</b> ${s.pitch.solution}
+                 </div>
+               `;
+            }
+          }
+
+          const card = document.createElement('div');
+          card.className = 'timeline-card';
+          const isNGO = currentState && currentState.mode === 'nonprofit';
+          const uLabel = isNGO ? 'Impact' : 'Users';
+
+          card.innerHTML = `
+            <div style="font-weight: bold; font-size: 1.1rem; color: var(--main-black);">Month ${snap.month} — ${snap.eventType}</div>
+            <div style="font-size: 0.85rem; color: #666; margin-bottom: 8px;">Budget: $${s.budget} | ${uLabel}: ${s.users} | Score: ${s.score}/100 (${s.startup_type || s.mode || ''})</div>
+            ${diffHtml}
+          `;
+          container.appendChild(card);
+        });
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closeEvolutionTimeline() {
+      document.getElementById('evolutionModal').style.display = 'none';
+    }
   </script>
+
+  <!-- Evolution Modal -->
+  <div id="evolutionModal" class="evolution-modal">
+    <div class="modal-content">
+      <h2
+        style="margin-bottom: 16px; border-bottom: 4px solid var(--main-black); padding-bottom: 8px; text-transform: uppercase;">
+        🕰 Startup Evolution History</h2>
+      <div id="timelineContainer"></div>
+      <button class="brutal-btn" style="margin-top: 24px; background: var(--main-black); color: white;"
+        onclick="closeEvolutionTimeline()">Close Timeline</button>
+    </div>
+  </div>
 </body>
 
 </html>

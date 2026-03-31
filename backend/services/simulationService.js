@@ -45,7 +45,10 @@ export const buildInitialState = (analysisOutput, initialBudget, startupData) =>
     pitch: { 
       problem: startupData.problem, 
       solution: startupData.solution, 
-      target_users: startupData.target_users 
+      target_users: startupData.target_users,
+      stage: startupData.stage,
+      team_capability: startupData.team_capability,
+      monetization: startupData.monetization
     },
     month: 1,
     budget,

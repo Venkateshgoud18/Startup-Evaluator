@@ -27,14 +27,30 @@ export const analyzeAndInit = async (req, res, next) => {
     // Wait, the prompt says "Expected Output: { startup_type... }"
     // To strictly conform, we can just return the analysis, but we already have state.
     // I'll return the analysis directly, and append the initial state for the next step.
-    
+
     res.json({
       ...analysis,
       _initialState: initialState, // Extra field for convenience
       _sessionId: sessionId
     });
-  } catch(error) {
+  } catch (error) {
     next(error);
+  }
+};
+
+export const simulateStepPrompt = async (req, res, next) => {
+  try {
+    const { state, decision } = req.body;
+    if (!state || !decision) {
+      return res.status(400).json({ error: "Missing state or decision field" });
+    }
+
+    // Pass the state mapping to the LLM to dynamically generate realistic new variables
+    const newState = await generateMathStep(state, decision);
+
+    res.json({ new_state: newState });
+  } catch (err) {
+    next(err);
   }
 };
 
@@ -44,12 +60,12 @@ export const simulateAndProgress = async (req, res, next) => {
     if (!state || !decision) {
       return res.status(400).json({ error: "Missing state or decision field" });
     }
-    
+
     // Apply deterministic logic
     const newState = simulateStep(state, decision);
-    
+
     res.json({ new_state: newState });
-  } catch(err) {
+  } catch (err) {
     next(err);
   }
 };
@@ -60,12 +76,12 @@ export const scenarioPrompt = async (req, res, next) => {
     if (!state) {
       return res.status(400).json({ error: "Missing state field" });
     }
-    
+
     // LLM generates a challenge
     const scenarioData = await generateScenario(state, difficultyLevel, mode);
-    
+
     res.json(scenarioData);
-  } catch(err) {
+  } catch (err) {
     next(err);
   }
 };
@@ -79,7 +95,7 @@ export const feedbackPrompt = async (req, res, next) => {
 
     // LLM generates feedback based on parameters
     const feedbackData = await generateFeedback(previous_state, decision, new_state, type || 'explain', mode);
-    
+
     res.json(feedbackData);
   } catch (err) {
     next(err);
