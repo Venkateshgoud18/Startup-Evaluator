@@ -20,13 +20,6 @@ export const analyzeAndInit = async (req, res, next) => {
     const sessionId = crypto.randomUUID();
     setSession(sessionId, initialState);
 
-    // Following requirements: Output pure analysis via this endpoint?
-    // The requirement says "Output: { startup_type, risk_level, growth_potential, ... }"
-    // But it's also helpful to return the state here if the frontend doesn't re-calculate.
-    // I will return what is strictly required, plus the state and sessionId in an envelope for completeness.
-    // Wait, the prompt says "Expected Output: { startup_type... }"
-    // To strictly conform, we can just return the analysis, but we already have state.
-    // I'll return the analysis directly, and append the initial state for the next step.
 
     res.json({
       ...analysis,

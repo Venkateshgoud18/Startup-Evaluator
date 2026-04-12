@@ -24,15 +24,12 @@ async function connectDB() {
 
 connectDB();
 
-// Routes
 app.use('/api', startupRoutes);
 
-// Basic health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Startup AI Simulator Backend is running' });
 });
 
-// Error handling middleware
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).json({ error: 'Internal Server Error', message: err.message });
